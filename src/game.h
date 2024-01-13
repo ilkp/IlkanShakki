@@ -1,29 +1,16 @@
 #pragma once
-#include <map>
-#include <chrono>
-#include <future>
 
-#include "chess.h"
+#include <QtWidgets/QMainWindow>
+#include "ui_game.h"
 
-class Game
+class Game : public QMainWindow
 {
+    Q_OBJECT
+
 public:
-	Game(long long clock_ms);
-	void MainLoop();
+    Game(QWidget *parent = nullptr);
+    ~Game();
 
 private:
-	struct Winner
-	{
-		bool hasValue;
-		Side side;
-	};
-
-	const long long GAME_CLOCK;
-
-	GameState _gameState;
-	long long _clocks_ms[2];
-	bool _isClosing;
-	std::future<Move> _requestedMove;
-
-	Winner hasWinner(const GameState& gameState);
+    Ui::GameClass ui;
 };

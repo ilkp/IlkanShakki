@@ -1,38 +1,34 @@
+
+#include <thread>
+
 #include "game.h"
+#include "chess.h"
+#include "server.h"
+#include "client.h"
 
-Game::Game(long long clock_ms) :
-	GAME_CLOCK(clock_ms),
-	_isClosing(false)
+Game::Game(QWidget *parent)
+    : QMainWindow(parent)
 {
-	_clocks_ms[0] = 0;
-	_clocks_ms[1] = 0;
+    ui.setupUi(this);
+
+	#if defined(_WIN32)
+	WSADATA wsaData;
+	if (WSAStartup(MAKEWORD(2, 2), &wsaData))
+		throw std::exception("Failed to initialize windows socket api");
+	#endif
+
+	Server server("5555");
+	Client client("127.0.0.1", "5555");
+	//Client client2("127.0.0.1", "5555");
+
+	Sleep(10000);
+	client.close();
+	//client._mainLoopThread.join();
 }
 
-void Game::MainLoop()
+Game::~Game()
 {
-	_clocks_ms[0] = GAME_CLOCK;
-	_clocks_ms[1] = GAME_CLOCK;
-	_gameState = initialGameState();
-
-	auto lastTimePoint = std::chrono::system_clock::now();
-	while(!_isClosing)
-	{
-		auto now = std::chrono::system_clock::now();
-		long long elapsedTime_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastTimePoint).count();
-		lastTimePoint = now;
-		_clocks_ms[_gameState.turn] -= elapsedTime_ms;
-
-		if (_clocks_ms[_gameState.turn] <= 0)
-		{
-			if (hasWinner(_gameState).hasValue)
-			{
-
-			}
-		}
-	}
-}
-
-Game::Winner Game::hasWinner(const GameState& gameState)
-{
-	return Winner();
+	#if defined(_WIN32)
+	WSACleanup();
+	#endif
 }
