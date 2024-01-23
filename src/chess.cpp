@@ -233,3 +233,17 @@ double evaluate(const GameState& gameState)
 	}
 	return value;
 }
+
+Side evaluateWinner(const GameState& gameState)
+{
+	return Side::NONE;
+}
+
+bool moveIsLegal(const Move& move, const GameState& gameState)
+{
+	return true;
+}
+
+void applyMove(const Move& move, GameState& gameState)
+{
+}

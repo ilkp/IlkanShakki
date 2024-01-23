@@ -19,10 +19,11 @@ Game::Game(QWidget *parent)
 
 	Server server("5555");
 	Client client("127.0.0.1", "5555");
-	//Client client2("127.0.0.1", "5555");
+	Client client2("127.0.0.1", "5555");
 
-	Sleep(10000);
-	client.close();
+	server._serverThread.join();
+	//Sleep(10000);
+	//client.close();
 	//client._mainLoopThread.join();
 }
 

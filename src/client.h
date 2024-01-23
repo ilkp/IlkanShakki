@@ -1,5 +1,6 @@
 #pragma once
 #include "socket.h"
+
 #include <thread>
 #include <atomic>
 
@@ -14,20 +15,21 @@ public:
 	~Client();
 
 	void close();
-	std::thread _mainLoopThread;
+	std::thread _clientThread;
 
 private:
 	enum class State
 	{
 		WAITING_FOR_SERVER,
-		SENDING_TO_SERVER_STATE
+		SENDING_TO_SERVER_STATE,
+		CLOSING
 	};
 
 	State _state;
 	SOCKET _serverSocket;
 	std::atomic_bool _closeRequested;
 
-	void mainLoop();
-	void waitingForServerState();
-	void sendingToServerState();
+	void nextState();
+	void stateWaitingForServer();
+	void stateSendingToServer();
 };

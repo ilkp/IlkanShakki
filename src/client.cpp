@@ -1,4 +1,5 @@
 #include "client.h"
+#include "tcp_messages.h"
 
 #include <vector>
 #include <future>
@@ -33,7 +34,7 @@ Client::Client(const std::string& ip, const std::string& port) :
 		throw std::exception("Failed to connect socket");
 
 	freeaddrinfo(peerAddress);
-	_mainLoopThread = std::thread(&Client::mainLoop, this);
+	_clientThread = std::thread(&Client::nextState, this);
 }
 
 Client::~Client()
@@ -44,26 +45,30 @@ Client::~Client()
 void Client::close()
 {
 	_closeRequested = true;
-	_mainLoopThread.join();
+	_clientThread.join();
 }
 
-void Client::mainLoop()
+void Client::nextState()
 {
-	while (!_closeRequested)
+	bool closing = false;
+	while (!closing)
 	{
 		switch (_state)
 		{
 			case State::WAITING_FOR_SERVER:
-				waitingForServerState();
+				stateWaitingForServer();
 				break;
 			case State::SENDING_TO_SERVER_STATE:
-				sendingToServerState();
+				stateSendingToServer();
+				break;
+			case State::CLOSING:
+				closing = true;
 				break;
 		}
 	}
 }
 
-void Client::waitingForServerState()
+void Client::stateWaitingForServer()
 {
 	std::vector<char> recvMsg;
 	recvMsg.resize(128);
@@ -72,15 +77,18 @@ void Client::waitingForServerState()
 	{
 		if (_closeRequested)
 		{
-			break;
+			shutdown(_serverSocket, SD_RECEIVE);
+			_state = State::CLOSING;
 		}
-		if (bytesReceived.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+		else if (bytesReceived.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
 		{
+			TcpMsgType tcpMsgType = (TcpMsgType)recvMsg[0];
 			break;
 		}
 	}
 }
 
-void Client::sendingToServerState()
+void Client::stateSendingToServer()
 {
+
 }

@@ -11,7 +11,8 @@ static const uint64_t BOARD_SIZE = BOARD_WIDTH * BOARD_WIDTH;
 enum Side
 {
 	WHITE,
-	BLACK
+	BLACK,
+	NONE
 };
 
 enum Piece : char
@@ -111,3 +112,9 @@ GameHash hashGameState(const GameState& gameState, const ZobristTable& zobristTa
 GameHash applyMoveHash(const GameHash gameHash, const MoveHash move);
 
 double evaluate(const GameState& gameState);
+
+Side evaluateWinner(const GameState& gameState);
+
+bool moveIsLegal(const Move& move, const GameState& gameState);
+
+void applyMove(const Move& move, GameState& gameState);
